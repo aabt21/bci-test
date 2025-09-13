@@ -3,6 +3,7 @@ package com.example.bcitest.domain.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +14,9 @@ import java.util.UUID;
 public class User {
     private UUID id;
     private String name;
+    @NonNull
     private String email;
+    @NonNull
     private String password;
     private List<Phone> phones;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MMM dd, yyyy hh:mm:ss a")

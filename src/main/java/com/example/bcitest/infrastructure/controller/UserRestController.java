@@ -4,6 +4,7 @@ import com.example.bcitest.application.port.UserPort;
 import com.example.bcitest.application.usecase.GetUserLoginUseCase;
 import com.example.bcitest.domain.model.User;
 import com.example.bcitest.infrastructure.security.JwtService;
+import com.example.bcitest.userinterface.exception.CredentialsNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +20,14 @@ public class UserRestController {
 
     @PostMapping("/sing-up")
     public ResponseEntity<User> signUp(@RequestBody User user) {
-        try {
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.ok(createdUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        User createdUser = userService.createUser(user);
+        return ResponseEntity.ok(createdUser);
     }
 
     @GetMapping("/login")
     public ResponseEntity<User> login(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().build();
+            throw new CredentialsNotFoundException("Invalid authorization header");
         }
         String token = authorizationHeader.substring(7);
         User user = getUserLoginUseCase.execute(token);

@@ -1,6 +1,7 @@
 package com.example.bcitest.domain.model;
 
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class Phone {

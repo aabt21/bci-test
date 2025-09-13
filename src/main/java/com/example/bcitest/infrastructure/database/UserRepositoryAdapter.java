@@ -22,7 +22,9 @@ public class UserRepositoryAdapter {
 
     public User save(User user) {
         var userEntity = UserMapper.toEntity(user);
-        userEntity.getPhones().forEach(phone -> phone.setUser(userEntity));
+        if (userEntity.getPhones() != null) {
+            userEntity.getPhones().forEach(phone -> phone.setUser(userEntity));
+        }
         return UserMapper.toDomain(repository.save(userEntity));
     }
 }

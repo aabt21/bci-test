@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserMapper {
     public static User toDomain(UserEntity entity) {
+        var phones = entity.getPhones() == null ? null : entity.getPhones().stream().map(PhoneMapper::toDomain).collect(Collectors.toList());
         return User.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -18,7 +19,7 @@ public class UserMapper {
                 .lastLogin(entity.getLastLogin())
                 .token(entity.getToken())
                 .isActive(entity.isActive())
-                .phones(entity.getPhones().stream().map(PhoneMapper::toDomain).collect(Collectors.toList()))
+                .phones(phones)
                 .build();
     }
 
@@ -32,7 +33,9 @@ public class UserMapper {
         entity.setLastLogin(domain.getLastLogin());
         entity.setToken(domain.getToken());
         entity.setActive(domain.isActive());
-        entity.setPhones(domain.getPhones().stream().map(PhoneMapper::toEntity).collect(Collectors.toList()));
+        if (domain.getPhones() != null) {
+            entity.setPhones(domain.getPhones().stream().map(PhoneMapper::toEntity).collect(Collectors.toList()));
+        }
         return entity;
     }
 
