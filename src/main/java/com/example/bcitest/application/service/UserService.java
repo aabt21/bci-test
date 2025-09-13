@@ -4,7 +4,6 @@ import com.example.bcitest.application.port.UserPort;
 import com.example.bcitest.domain.model.User;
 import com.example.bcitest.domain.service.UserValidationService;
 import com.example.bcitest.infrastructure.database.UserRepositoryAdapter;
-import com.example.bcitest.infrastructure.mapper.UserMapper;
 import com.example.bcitest.infrastructure.security.JwtService;
 import org.springframework.stereotype.Service;
 

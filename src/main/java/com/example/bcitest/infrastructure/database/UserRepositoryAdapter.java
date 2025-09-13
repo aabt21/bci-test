@@ -19,26 +19,10 @@ public class UserRepositoryAdapter {
 
     public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email)
-                .map(entity -> User.builder()
-                        .id(entity.getId())
-                        .email(entity.getEmail())
-                        .password(entity.getPassword())
-                        .created(entity.getCreated())
-                        .lastLogin(entity.getLastLogin())
-                        .token(entity.getToken())
-                        .isActive(entity.isActive())
-                        .build());
+                .map(mapper::toDomain);
     }
 
     public User save(User user) {
-        UserEntity entity = new UserEntity();
-        entity.setId(user.getId());
-        entity.setEmail(user.getEmail());
-        entity.setPassword(user.getPassword());
-        entity.setCreated(user.getCreated());
-        entity.setLastLogin(user.getLastLogin());
-        entity.setToken(user.getToken());
-        entity.setActive(user.isActive());
-        return mapper.toDomain(repository.save(entity));
+        return mapper.toDomain(repository.save(mapper.toEntity(user)));
     }
 }
