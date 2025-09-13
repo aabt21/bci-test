@@ -157,3 +157,211 @@ Request response:
 - JWT for Authentication
 - Lombok
 - JUnit for Testing
+
+## Architecture Diagrams
+
+### Component Diagram
+
+```mermaid
+%% UML Component Diagram using Mermaid Class Diagram syntax
+classDiagram
+    class UserRestController {
+        <<component>>
+        +signUp(User) User
+        +login(String) User
+    }
+
+    class UserService {
+        <<component>>
+        +createUser(User) User
+    }
+
+    class GetUserLoginUseCase {
+        <<component>>
+        +execute(String) User
+    }
+
+    class User {
+        <<model>>
+        +UUID id
+        +String name
+        +String email
+        +String password
+        +List~Phone~ phones
+        +LocalDateTime created
+        +LocalDateTime lastLogin
+        +String token
+        +boolean isActive
+    }
+
+    class Phone {
+        <<model>>
+        +Long number
+        +Integer cityCode
+        +String countryCode
+    }
+
+    class UserValidationService {
+        <<service>>
+        +isValidEmail(String) boolean
+        +isValidPassword(String) boolean
+    }
+
+    class UserRepositoryAdapter {
+        <<adapter>>
+        +findByEmail(String) Optional~User~
+        +save(User) User
+    }
+
+    class UserRepository {
+        <<repository>>
+        +findByEmail(String) Optional~UserEntity~
+        +save(UserEntity) UserEntity
+    }
+
+    class JwtService {
+        <<service>>
+        +generateToken(String) String
+        +extractUsername(String) String
+    }
+
+    class UserEntity {
+        <<entity>>
+        +UUID id
+        +String name
+        +String email
+        +String password
+        +List~Phone~ phones
+        +LocalDateTime created
+        +LocalDateTime lastLogin
+        +String token
+        +boolean isActive
+    }
+
+    class PhoneEntity {
+        <<entity>>
+        +Long number
+        +Integer cityCode
+        +String countryCode
+    }
+
+    %% Interfaces with stereotypes
+    class UserPort {
+        <<interface>>
+        +createUser(User) User
+    }
+
+    UserRestController ..> UserService : uses
+    UserRestController ..> GetUserLoginUseCase : uses
+    UserService ..|> UserPort : implements
+    UserService ..> UserValidationService : uses
+    UserService ..> UserRepositoryAdapter : uses
+    UserService ..> JwtService : uses
+    GetUserLoginUseCase ..> UserRepositoryAdapter : uses
+    GetUserLoginUseCase ..> JwtService : uses
+    UserRepositoryAdapter ..> UserRepository : uses
+    UserRepository ..> UserEntity : maps
+    UserEntity *-- PhoneEntity : contains
+    UserRepositoryAdapter ..> User : maps
+    User *-- Phone : contains
+    
+    namespace ApplicationLayer {
+        class UserService
+        class GetUserLoginUseCase
+        class UserPort
+    }
+
+    namespace DomainLayer {
+        class User
+        class Phone
+        class UserValidationService
+    }
+
+    namespace InfrastructureLayer {
+        class UserRestController
+        class UserRepositoryAdapter
+        class UserRepository
+        class JwtService
+        class UserEntity
+        class PhoneEntity
+    }
+```
+
+### Sequence Diagrams
+
+#### Sign-up Endpoint
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant UserRestController
+    participant UserService
+    participant UserValidationService
+    participant JwtService
+    participant UserRepositoryAdapter
+    participant UserRepository
+
+    Client->>UserRestController: POST /sing-up (User data)
+    UserRestController->>UserService: createUser(user)
+    UserService->>UserValidationService: isValidEmail(email)
+    UserValidationService-->>UserService: validation result
+    UserService->>UserValidationService: isValidPassword(password)
+    UserValidationService-->>UserService: validation result
+    UserService->>UserRepositoryAdapter: findByEmail(email)
+    UserRepositoryAdapter->>UserRepository: findByEmail(email)
+    UserRepository-->>UserRepositoryAdapter: UserEntity or empty
+    UserRepositoryAdapter-->>UserService: User or empty
+
+    alt User exists
+        UserService-->>UserRestController: throw IllegalArgumentException
+        UserRestController-->>Client: 400 Bad Request
+    else User doesn't exist
+        UserService->>JwtService: generateToken(email)
+        JwtService-->>UserService: JWT token
+        UserService->>UserService: Set user properties (token, created, lastLogin, active)
+        UserService->>UserRepositoryAdapter: save(user)
+        UserRepositoryAdapter->>UserRepository: save(userEntity)
+        UserRepository-->>UserRepositoryAdapter: saved UserEntity
+        UserRepositoryAdapter-->>UserService: saved User
+        UserService-->>UserRestController: created User
+        UserRestController-->>Client: 200 OK with User data
+    end
+```
+
+#### Login Endpoint
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant UserRestController
+    participant GetUserLoginUseCase
+    participant JwtService
+    participant UserRepositoryAdapter
+    participant UserRepository
+
+    Client->>UserRestController: GET /login (with JWT token)
+    UserRestController->>UserRestController: Extract token from Authorization header
+    UserRestController->>GetUserLoginUseCase: execute(token)
+    GetUserLoginUseCase->>JwtService: extractUsername(token)
+    JwtService-->>GetUserLoginUseCase: email
+    GetUserLoginUseCase->>UserRepositoryAdapter: findByEmail(email)
+    UserRepositoryAdapter->>UserRepository: findByEmail(email)
+    UserRepository-->>UserRepositoryAdapter: UserEntity or empty
+    UserRepositoryAdapter-->>GetUserLoginUseCase: User or empty
+
+    alt User not found
+        GetUserLoginUseCase-->>UserRestController: throw RuntimeException
+        UserRestController-->>Client: 400 Not Found
+    else User found
+        GetUserLoginUseCase->>GetUserLoginUseCase: Update lastLogin
+        GetUserLoginUseCase->>JwtService: generateToken(email)
+        JwtService-->>GetUserLoginUseCase: new JWT token
+        GetUserLoginUseCase->>GetUserLoginUseCase: Update token
+        GetUserLoginUseCase->>UserRepositoryAdapter: save(user)
+        UserRepositoryAdapter->>UserRepository: save(userEntity)
+        UserRepository-->>UserRepositoryAdapter: saved UserEntity
+        UserRepositoryAdapter-->>GetUserLoginUseCase: saved User
+        GetUserLoginUseCase-->>UserRestController: updated User
+        UserRestController-->>Client: 200 OK with User data
+    end
+```
