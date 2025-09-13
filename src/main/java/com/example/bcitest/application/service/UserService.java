@@ -5,6 +5,7 @@ import com.example.bcitest.domain.model.User;
 import com.example.bcitest.domain.service.UserValidationService;
 import com.example.bcitest.infrastructure.database.UserRepositoryAdapter;
 import com.example.bcitest.infrastructure.mapper.UserMapper;
+import com.example.bcitest.infrastructure.security.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,9 +14,11 @@ import java.util.Optional;
 public class UserService implements UserPort {
 
     private final UserRepositoryAdapter userRepository;
+    private final JwtService jwtService;
 
-    public UserService(UserRepositoryAdapter userRepository) {
+    public UserService(UserRepositoryAdapter userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -30,6 +33,8 @@ public class UserService implements UserPort {
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("User already exists");
         }
+        user.setActive(true);
+        user.setToken(jwtService.generateToken(user.getEmail()));
         return userRepository.save(user);
     }
 
