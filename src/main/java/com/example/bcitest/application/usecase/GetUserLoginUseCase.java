@@ -24,8 +24,7 @@ public class GetUserLoginUseCase {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setLastLogin(LocalDateTime.now());
         String newToken = jwtService.generateToken(email);
-        user.setPassword(null);
         user.setToken(newToken);
-        return user;
+        return userRepository.save(user);
     }
 }

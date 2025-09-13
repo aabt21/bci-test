@@ -4,9 +4,11 @@ import com.example.bcitest.domain.model.User;
 import com.example.bcitest.infrastructure.database.UserEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 public class UserMapper {
-    public User toDomain(UserEntity entity) {
+    public static User toDomain(UserEntity entity) {
         return User.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -16,10 +18,11 @@ public class UserMapper {
                 .lastLogin(entity.getLastLogin())
                 .token(entity.getToken())
                 .isActive(entity.isActive())
+                .phones(entity.getPhones().stream().map(PhoneMapper::toDomain).collect(Collectors.toList()))
                 .build();
     }
 
-    public UserEntity toEntity(User domain) {
+    public static UserEntity toEntity(User domain) {
         UserEntity entity = new UserEntity();
         entity.setId(domain.getId());
         entity.setName(domain.getName());
@@ -29,6 +32,7 @@ public class UserMapper {
         entity.setLastLogin(domain.getLastLogin());
         entity.setToken(domain.getToken());
         entity.setActive(domain.isActive());
+        entity.setPhones(domain.getPhones().stream().map(PhoneMapper::toEntity).collect(Collectors.toList()));
         return entity;
     }
 

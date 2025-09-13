@@ -10,19 +10,19 @@ import java.util.Optional;
 public class UserRepositoryAdapter {
 
     private final UserRepository repository;
-    private final UserMapper mapper;
 
-    public UserRepositoryAdapter(UserRepository repository, UserMapper mapper) {
+    public UserRepositoryAdapter(UserRepository repository) {
         this.repository = repository;
-        this.mapper = mapper;
     }
 
     public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email)
-                .map(mapper::toDomain);
+                .map(UserMapper::toDomain);
     }
 
     public User save(User user) {
-        return mapper.toDomain(repository.save(mapper.toEntity(user)));
+        var userEntity = UserMapper.toEntity(user);
+        userEntity.getPhones().forEach(phone -> phone.setUser(userEntity));
+        return UserMapper.toDomain(repository.save(userEntity));
     }
 }

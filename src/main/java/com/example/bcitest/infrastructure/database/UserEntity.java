@@ -2,10 +2,10 @@ package com.example.bcitest.infrastructure.database;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,4 +21,8 @@ public class UserEntity {
     private LocalDateTime lastLogin;
     private String token;
     private boolean isActive;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhoneEntity> phones = new ArrayList<>();
+
 }
