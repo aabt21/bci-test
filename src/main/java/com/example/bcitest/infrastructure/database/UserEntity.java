@@ -1,20 +1,22 @@
-package com.example.bcitest.domain.model;
+package com.example.bcitest.infrastructure.database;
 
-import lombok.Builder;
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
-public class User {
+@Entity
+public class UserEntity {
+    @Id
+    @GeneratedValue
     private UUID id;
     private String name;
     private String email;
     private String password;
-    private List<Phone> phones;
     private LocalDateTime created;
     private LocalDateTime lastLogin;
     private String token;
