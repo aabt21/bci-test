@@ -22,22 +22,6 @@ public class JwtService {
         return Jwts.builder().setSubject(email).setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + TOKEN_MILLIS)).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    public boolean isTokenValid(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
-            return true;
-        } catch (SignatureException e) {
-            System.out.println("Firma del token inválida: " + e.getMessage());
-            return false;
-        } catch (ExpiredJwtException e) {
-            System.out.println("El token ha expirado: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.out.println("Token inválido: " + e.getMessage());
-            return false;
-        }
-    }
-
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

@@ -3,15 +3,12 @@ package com.example.bcitest.application.service;
 import com.example.bcitest.application.port.UserPort;
 import com.example.bcitest.domain.model.User;
 import com.example.bcitest.domain.service.UserValidationService;
-import com.example.bcitest.infrastructure.database.PhoneEntity;
 import com.example.bcitest.infrastructure.database.UserRepositoryAdapter;
 import com.example.bcitest.infrastructure.security.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserPort {

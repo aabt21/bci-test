@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class UserValidationService {
     private static final String EMAIL_REGEX = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$";
-    private static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?!.*[A-Z]{2})(?=(?:.*\\d){2})(?!.*\\d{3})[a-zA-Z\\d]{8,12}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=(?:.*\\d){2})[a-zA-Z\\d]{8,12}$";
 
     public static boolean isValidEmail(String email) {
         return Pattern.matches(EMAIL_REGEX, email);
